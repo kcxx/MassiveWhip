@@ -50,7 +50,11 @@ def parse_raidhelper_event_datetime(embedFields):
 
 def is_upcoming_event(msg):
     return datetime.utcnow() < parse_raidhelper_event_datetime(msg.embeds[0].fields)
-
+    
+    
+def log_command(command, author):
+    print(datetime.now(), command, '\t', author)
+    
 
 async def getUnsignedMembers(ctx):
     vedeniRole = await commands.RoleConverter().convert(ctx, 'vedeni')
@@ -59,7 +63,7 @@ async def getUnsignedMembers(ctx):
     allRaiders = set(vedeniRole.members + raiderRole.members)
     unsignedRaiders = set()
 
-    async for msg in ctx.channel.history(limit=10):
+    async for msg in ctx.channel.history(limit=5):
         if msg.author.name == 'Raid-Helper' and is_upcoming_event(msg):
             signedUsersSet = set()
             for r in msg.reactions:
@@ -93,9 +97,9 @@ async def getUnsignedMembersMsg(ctx, mention=True):
 @is_eligible_to_whip()
 async def whipHere(ctx):
     await ctx.message.delete()
+    log_command('whip', ctx.author.name)
     async with ctx.channel.typing():
         msg = await getUnsignedMembersMsg(ctx)
-        print('Zabicoval: ', ctx.author.name)
         await ctx.send(msg)
 
 
@@ -103,9 +107,9 @@ async def whipHere(ctx):
 @is_eligible_to_whip()
 async def whipHereTest(ctx):
     await ctx.message.delete()
+    log_command('whipT', ctx.author.name)
     async with ctx.channel.typing():
         msg = await getUnsignedMembersMsg(ctx, mention=False)
-        print('Zabicoval: ', ctx.author.name)
         await ctx.author.send(msg)
 
 
@@ -131,6 +135,8 @@ def ListSubtract(li1, li2):
 @bot.command(name='newCouncil', help='Generate new loot council based on discord ranks.')
 @is_eligible_to_whip()
 async def newCouncil(ctx):
+    await ctx.message.delete()
+    log_command('council', ctx.author.name)
     async with ctx.channel.typing():
         vedeni = (await commands.RoleConverter().convert(ctx, 'vedeni')).members
         core = ListSubtract((await commands.RoleConverter().convert(ctx, 'raider')).members, vedeni)
@@ -146,7 +152,6 @@ async def newCouncil(ctx):
         table = tabulate(council, headers=["Vedeni", "CoreRaiders"])
         msg = ''.join(['```New loot council \n\n', table, '```'])
 
-        await ctx.message.delete()
         await ctx.send(msg)
 
 
