@@ -43,9 +43,10 @@ def is_eligible_to_whip():
 
 
 def parse_raidhelper_event_datetime(embedFields):
-    date = embedFields[0].value.split('&dates=', 1)[1].split('T', 1)[0]
-    time = embedFields[1].value.split('**[', 1)[1].split(' ', 1)[0]
-    return datetime.strptime(date + time, '%Y%m%d%H:%M')
+    token = embedFields[-1].value.split('&dates=', 1)[1].split('Z', 1)[0]
+    token_no_delim = ''.join(token.split('T', 1))
+    event_datetime = datetime.strptime(token_no_delim, '%Y%m%d%H%M%S') + timedelta(hours=1)
+    return event_datetime
 
 
 def is_upcoming_event(msg):
