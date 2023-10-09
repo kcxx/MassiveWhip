@@ -79,17 +79,14 @@ async def whip(interaction: discord.Interaction, message: discord.Message):
                     return await interaction.response.send_message(f'Raid-Helper event [{message.id}] not found.',
                                                                    ephemeral=True)
 
-                role = discord.utils.get(interaction.guild.roles, name='raider')
-                all_raiders = [m.display_name for m in role.members]
-                role = discord.utils.get(interaction.guild.roles, name='vedeni')
-                all_raiders.extend([m.display_name for m in role.members])
+                all_raiders = discord.utils.get(interaction.guild.roles, name='raider').members
+                all_raiders.extend(discord.utils.get(interaction.guild.roles, name='vedeni').members)
                 all_raiders = list(set(all_raiders))
 
-                signed = [m['name'] for m in js['signUps']]
-                unsigned = list_diff(all_raiders, signed)
-                unsigned_raiders = [m for m in role.members if m.display_name in unsigned]
-                mention = False
+                signed_raiders = [m['name'] for m in js['signUps']]
+                unsigned_raiders = [r for r in all_raiders if r.display_name not in signed_raiders]
 
+                mention = True
                 if not unsigned_raiders:
                     msg = ['You\'ll call me back. I know it.']
                 else:
