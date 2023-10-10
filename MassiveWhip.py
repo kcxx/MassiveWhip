@@ -13,6 +13,7 @@ import aiohttp
 from dotenv import load_dotenv
 from datetime import datetime
 from tabulate import tabulate
+from inspect import cleandoc
 
 
 class MyClient(discord.Client):
@@ -88,14 +89,13 @@ async def whip(interaction: discord.Interaction, message: discord.Message):
 
                 mention = True
                 if not unsigned_raiders:
-                    msg = ['You\'ll call me back. I know it.']
+                    msg = f'You\'ll call me back. I know it.'
                 else:
-                    msg = ['Finally, a chance to demonstrate my... talents...\n']
-                    for ur in unsigned_raiders:
-                        msg.extend([ur.mention if mention else ur.display_name, ' '])
-                    msg.extend(['\nShall we begin?'])
+                    msg = f'''Finally, a chance to demonstrate my... talents...
+                    {' '.join([ur.mention if mention else ur.display_name for ur in unsigned_raiders])}
+                    Shall we begin?'''
 
-                await interaction.response.send_message(''.join(msg))
+                await interaction.response.send_message(cleandoc(msg))
 
 
 councilRoleSize = 7
@@ -122,7 +122,7 @@ async def council(interaction: discord.Interaction):
 
         new_council = list(zip(c_vedeni, c_core))
         table = tabulate(new_council, headers=["Vedeni", "CoreRaiders"])
-        msg = ''.join(['```New loot council \n\n', table, '```'])
+        msg = f'```New loot council\n\n{table}```'
 
         await interaction.response.send_message(msg)
 
